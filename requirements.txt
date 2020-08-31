@@ -1,0 +1,9 @@
+Django==1.11.24
+djangorestframework>=3.9.1
+djangorestframework-jwt==1.11.0
+django-cors-headers==3.2.1
+django-crequest==2018.5.11
+gunicorn==19.9.0
+celery==3.1.24
+redis==2.10.6
+xlrd==1.2.0

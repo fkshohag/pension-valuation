@@ -1,0 +1,66 @@
+version: "3.5"
+services:
+  app:
+    build: .
+    container_name: pension_app
+    working_dir: /var/www/pension/app
+    networks:
+      - appnet
+    command: gunicorn wsgi:application --bind 0.0.0.0:7000
+    volumes:
+      - ./:/var/www/pension/app
+    ports:
+      - 7000:7000
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=shohag
+
+  webserver:
+    image: nginx:1.15
+    container_name: pension_nginx
+    working_dir: /var/www/pension_app/app
+    networks:
+      - appnet
+    ports:
+      - 7002:7000
+    depends_on:
+      - app
+    volumes:
+      - ./:/var/www/pension/app
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+  db:
+    image: postgres:11.5-alpine
+    container_name: pension_postgres
+    networks:
+      - appnet
+    volumes:
+      - /home/shohag/Workspace/Deploy/db_store/pension:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=pension
+      - POSTGRES_PASSWORD=pension
+      - POSTGRES_DB=pension
+
+  db_client:
+    image: adminer
+    container_name: pension_adminer
+    ports:
+      - 7003:8080
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  redis:
+    image: redis:latest
+    container_name: pension_redis
+    ports:
+      - "7379:6379"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
